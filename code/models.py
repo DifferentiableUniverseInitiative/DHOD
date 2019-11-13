@@ -293,7 +293,7 @@ def _mdn_mask_model_fn(features, labels, nchannels, n_y, n_mixture, dropout, opt
 
 
 
-def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, optimizer, mode, pad, lr0=1e-3, distribution='logistic', masktype='constant', posdistribution='poisson'):
+def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, optimizer, mode, pad, lr0=1e-3, distribution='logistic', masktype='constant', posdistribution='poisson', dependence=None):
     '''model that learns the mask, number of halos (input first layer) and total mass in a pixel (input second layer)'''
 
     # Check for training mode
@@ -316,6 +316,7 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
             net = slim.conv3d(feature_layer, 16, 5, activation_fn=tf.nn.leaky_relu, padding='valid')
         net = wide_resnet(net, 32, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
         net = wide_resnet(net, 32, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
+        net = wide_resnet(net, 32, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
         if distribution == 'logistic': net = slim.conv3d(net, 32, 3, activation_fn=tf.nn.tanh)
         else: net = slim.conv3d(net, 32, 3, activation_fn=tf.nn.leaky_relu)
 
@@ -329,10 +330,22 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
         cube_size = tf.shape(obs_layer)[1]
         
         ##
+        if dependence is None:
+            likenetpos = wide_resnet(net, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
+            likenetmass = wide_resnet(net, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
+        elif dependence == 'monp':
+            likenetpos = wide_resnet(net, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
+            likenetmass = wide_resnet(likenetpos, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
+        elif dependence == 'ponm':
+            likenetmass = wide_resnet(net, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
+            likenetpos = wide_resnet(likenetmass, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
+            
+
         # Define the probabilistic layer for position. It can be either Poisson or mixture of logistic/normal
-        likenetpos = wide_resnet(net, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
         #likenetpos = slim.conv3d(net, 64, 1, activation_fn=tf.nn.leaky_relu)
         if posdistribution == 'poisson':
+
+            print('\nPoisson distribution for the position\n')            
             netpos = slim.conv3d(likenetpos, 1, 1, activation_fn=None)
             netpos = tf.reshape(netpos, [-1, cube_size, cube_size, cube_size, 1])
             lbda = tf.nn.softplus(netpos, name='lambda') + 1e-3
@@ -354,6 +367,7 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
             # logistic distribution by -0.5. This lets the quantization capture "rounding"
             # intervals, `(x-0.5, x+0.5]`, and not "ceiling" intervals, `(x-1, x]`.
             if posdistribution == 'logistic':
+                print('\nLogistic distribution for the position\n')
                 discretized_logistic_distpos = tfd.QuantizedDistribution(
                     distribution=tfd.TransformedDistribution(
                         distribution=tfd.Logistic(loc=locpos, scale=scalepos),
@@ -366,14 +380,13 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
                     components_distribution=discretized_logistic_distpos)
                 
             elif posdistribution == 'normal':
-
+                print('\nNormal distribution for the position\n')
                 mixture_distpos = tfd.MixtureSameFamily(
                     mixture_distribution=tfd.Categorical(logits=logitspos),
                     components_distribution=tfd.Normal(loc=locpos, scale=scalepos))
 
 
         # Define the probabilistic layer for mass
-        likenetmass = wide_resnet(likenetpos, 16, activation_fn=tf.nn.leaky_relu, keep_prob=dropout, is_training=is_training)
         #likenetmass = slim.conv3d(net, 64, 1, activation_fn=tf.nn.leaky_relu)
         netmass = slim.conv3d(likenetmass, n_mixture*3, 1, activation_fn=None)
         netmass = tf.reshape(netmass, [-1, cube_size, cube_size, cube_size, 1, n_mixture*3])
@@ -386,6 +399,7 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
         # logistic distribution by -0.5. This lets the quantization capture "rounding"
         # intervals, `(x-0.5, x+0.5]`, and not "ceiling" intervals, `(x-1, x]`.
         if distribution == 'logistic':
+            print('\nLogistic distribution for the mass\n')
             discretized_logistic_distmass = tfd.QuantizedDistribution(
                 distribution=tfd.TransformedDistribution(
                     distribution=tfd.Logistic(loc=locmass, scale=scalemass),
@@ -398,7 +412,7 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
                 components_distribution=discretized_logistic_distmass)
 
         elif distribution == 'normal':
-
+            print('\nNormal distribution for the mass\n')
             mixture_distmass = tfd.MixtureSameFamily(
                 mixture_distribution=tfd.Categorical(logits=logitsmass),
                 components_distribution=tfd.Normal(loc=locmass, scale=scalemass))
@@ -413,7 +427,7 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
         rawloglikmass = mixture_distmass.log_prob(obs_layer[...,1:])
 
         sample = tf.concat([samplepos, samplemass], axis=-1)
-        rawsample = tf.concat([rawsamplepos, rawsamplemass], axis=-1)
+        rawsample = tf.concat([tf.cast(rawsamplepos, tf.float32), rawsamplemass], axis=-1)
         rawloglik = tf.concat([rawloglikpos, rawloglikmass], axis=-1)
         
         print(rawloglikpos, rawloglikmass, mask_layer)
@@ -436,7 +450,8 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
                                    'locpos':locpos, 'scalepos':scalepos, 'logitspos':logitspos,
                                    'locmass':locmass, 'scalemass':scalemass, 'logitsmass':logitsmass,
                                    'rawsample':rawsample, 'pred_mask':pred_mask, 'out_mask':out_mask,
-                                   'rawloglik':rawloglik, 'lossp':lossp, 'lossm':lossm, 'loss2':loss2})
+                                   'rawloglik':rawloglik, 'lossp':lossp, 'lossm':lossm, 'loss2':loss2,
+                                   'rawsamplepos':rawsamplepos, 'rawsamplemass':rawsamplemass})
 
 
     # Create model and register module if necessary
@@ -488,6 +503,8 @@ def _mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, 
 
             tf.summary.scalar('rate', learning_rate)                            
         tf.summary.scalar('loglik', neg_log_likelihood)
+        tf.summary.scalar('lossm', lossm)
+        tf.summary.scalar('lossp', lossp)
     elif mode == tf.estimator.ModeKeys.EVAL:
         
         eval_metric_ops = { "log_p": neg_log_likelihood}
