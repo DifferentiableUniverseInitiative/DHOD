@@ -53,7 +53,8 @@ posdistribution = 'poisson'
 n_mixture = 4
 pad = int(0)
 masktype = 'constant'
-suff = 'pad%d-cic-allnn-cmask-pois4normmix'%pad
+dependence = 'monp'
+suff = 'pad%d-cic-allnn-cmask-pois4normmix-monp'%pad
 
 
 savepath = '../models/n10/%s/'%suff
@@ -85,6 +86,7 @@ print('Target are : ', tgname, file=fname)
 print('Model Name : ', modelname, file=fname)
 print('Distribution : ', distribution, file=fname)
 print('Position Distribution : ', posdistribution, file=fname)
+print('Dependence : ', dependence, file=fname)
 print('Masktype : ', masktype, file=fname)
 print('No. of components : ', n_mixture, file=fname)
 print('Pad with : ', pad, file=fname)
@@ -117,7 +119,7 @@ def get_meshes(seed, galaxies=False):
     massd = massall[:num].copy()
     hmesh['pnn'] = tools.paintnn(hposd, bs, nc)
     hmesh['mnn'] = tools.paintnn(hposd, bs, nc, massd)
-    hmesh['mnnnomean'] =  (hmesh['mnn'])/hmesh['mnn'].sum()
+    hmesh['mnnnomean'] =  (hmesh['mnn'])/hmesh['mnn'].mean()
     #hmesh['pcic'] = tools.paintcic(hposd, bs, nc)
     #hmesh['mcic'] = tools.paintcic(hposd, bs, nc, massd)
     #hmesh['mcicnomean'] =  (hmesh['mcic'])/hmesh['mcic'].mean()
@@ -190,7 +192,7 @@ class MDNEstimator(tf.estimator.Estimator):
 
         def _model_fn(features, labels, mode):
             return models._mdn_mask_allmodel_fn(features, labels, nchannels, n_y, n_mixture, dropout, optimizer, mode,
-                                         pad=0, lr0=1e-3, distribution=distribution, masktype=masktype, posdistribution=posdistribution)
+                                                pad=0, lr0=1e-3, distribution=distribution, masktype=masktype, posdistribution=posdistribution, dependence=dependence)
 
         super(self.__class__, self).__init__(model_fn=_model_fn,
                                              model_dir=model_dir,
@@ -362,7 +364,7 @@ fh.setFormatter(formatter)
 log.addHandler(fh)
 
 
-for max_steps in [50, 100, 500, 1000, 3000, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 70000, 80000, 90000, 100000]:
+for max_steps in [50, 100, 500, 1000, 2000, 3000, 5000, 10000, 15000, 20000, 25000, 30000, 35000, 40000, 50000, 60000, 70000, 80000, 90000, 100000]:
 #for max_steps in [100]+list(np.arange(5e3, 7.1e4, 5e3, dtype=int)):
     print('For max_steps = ', max_steps)
     tf.reset_default_graph()

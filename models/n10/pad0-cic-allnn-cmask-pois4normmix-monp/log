@@ -1,0 +1,10 @@
+Features are :  ['cic']
+Target are :  ['pnn', 'mnnnomean']
+Model Name :  _mdn_mask_allmodel_fn
+Distribution :  normal
+Position Distribution :  poisson
+Dependence :  monp
+Masktype :  constant
+No. of components :  4
+Pad with :  0
+Rotation probability = 0.50
