@@ -27,11 +27,8 @@ def Nsat(Mhalo, theta, model='zheng07'):
 def hod(Mhalo, theta, temperature=0.2, model='zheng07'):
     if model == 'zheng07': 
         # sample relaxed bernoulli dist. for centrals
-        bern = tfp.distributions.RelaxedBernoulli(temperature, probs=Ncen(Mhalo, theta, model=model)).sample()
+        cens = tfp.distributions.RelaxedBernoulli(temperature, probs=Ncen(Mhalo, theta, model=model))
 
-        # sample poisson distribution estimated by N(mu, mu) 
-        # THIS IS VERY APPROXIMATE AND NOT CORRECT 
-        # REPLACE WITH SOMETHING BETTER
-        nsat = Nsat(Mhalo, theta, model=model)
-        pois = tfp.distributions.Normal(loc=nsat, scale=nsat).sample()
-        return bern + pois
+        # sample poisson distribution 
+        sats = tfp.distributions.Poisson(rate=Nsat(Mhalo, theta, model=model))
+        return cens.sample(), tf.stop_gradient(sats.sample() - sats.rate) + sats.rate
