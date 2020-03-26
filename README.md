@@ -1,8 +1,6 @@
-# DHOD
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
+# Differentiable HOD
 
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 [![Join the chat at https://gitter.im/DifferentiableUniverseInitiative/DHOD](https://badges.gitter.im/DifferentiableUniverseInitiative/DHOD.svg)](https://gitter.im/DifferentiableUniverseInitiative/DHOD?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Differentiable Halo Occupation Distributions
