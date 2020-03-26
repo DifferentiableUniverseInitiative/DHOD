@@ -133,7 +133,8 @@ def _lambertw_principal_branch(z, name=None):
     z0 = tf.where(z > -np.exp(-1.), lambertw_winitzki_approx(z), z)
     z0 = tf.while_loop(cond=lambda stop, *_: ~stop,
                        body=_newton_iteration,
-                       loop_vars=(False, z0, z, tolerance))[1]
+		                   maximum_iterations=tf.constant(100, name='max_iter'),
+                       loop_vars=(tf.constant(False), z0, z, tolerance))[1]
     return tf.cast(z0, dtype=z.dtype)
 
 
