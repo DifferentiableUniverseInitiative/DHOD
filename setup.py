@@ -8,5 +8,5 @@ setup(name = 'diffhod',
       python_requires='>3.5.2',
       description = 'differentiable HOD',
       provides = ['diffhod'],
-      packages = ['diffhod']
-      )
+      packages = ['diffhod'],
+      install_requires = ['tensorflow-probability==0.9']  )
