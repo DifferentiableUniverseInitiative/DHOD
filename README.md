@@ -16,6 +16,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="http://flanusse.net"><img src="https://avatars0.githubusercontent.com/u/861591?v=4" width="100px;" alt=""/><br /><sub><b>Francois Lanusse</b></sub></a><br /><a href="https://github.com/DifferentiableUniverseInitiative/DHOD/commits?author=EiffL" title="Code">💻</a></td>
     <td align="center"><a href="http://changhoonhahn.github.io"><img src="https://avatars0.githubusercontent.com/u/1895640?v=4" width="100px;" alt=""/><br /><sub><b>ChangHoon Hahn</b></sub></a><br /><a href="https://github.com/DifferentiableUniverseInitiative/DHOD/commits?author=changhoonhahn" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/aphearin"><img src="https://avatars0.githubusercontent.com/u/6951595?v=4" width="100px;" alt=""/><br /><sub><b>Andrew Hearin</b></sub></a><br /><a href="#ideas-aphearin" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 
