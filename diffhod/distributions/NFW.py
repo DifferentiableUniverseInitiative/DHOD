@@ -20,7 +20,7 @@ __all__ = [
 ]
 
 class NFW(distribution.Distribution):
-  r"""NFW radial distribution.
+  r"""NFW radial mass distribution.
 
   This distribution is useful to sample satelite galaxies according to an NFW
   radial profile.
@@ -109,26 +109,37 @@ class NFW(distribution.Distribution):
       Rvir = tf.convert_to_tensor(self.Rvir)
       return r / Rvir
 
-  def _prob_unormalized(self, q):
-    """Returns the unormalized pdf"""
+  def _prob(self, r):
+    concentration = tf.convert_to_tensor(self.concentration)
+    q = self._q(r)
+    p = (q*concentration**2)/(((q*concentration)+1.0)**2*(1.0/(concentration+1.0) +
+                              tf.math.log(concentration+1.0)-1.0))
+    return p
+
+  def _cdf_unormalized(self, q):
+    """Returns the unormalized cdf"""
     with tf.name_scope('prob_unormalized'):
       concentration = tf.convert_to_tensor(self.concentration)
       x = q * self.concentration
       return tf.math.log(1.0 + x) - x / (1.0 + x)
 
-  def _log_prob(self, r):
+  def _cdf(self, r):
     q = self._q(r)
-    p = self._prob_unormalized(q) / self._prob_unormalized(1.0)
-    return tf.math.log(p)
+    p = self._cdf_unormalized(q) / self._cdf_unormalized(1.0)
+    return p
 
-  def _inv_cdf(self, p):
+  def _log_cdf(self, r):
+    q = self._q(r)
+    return tf.math.log(self._cdf_unormalized(q)) - tf.math.log(self._cdf_unormalized(1.0))
+
+  def _quantile(self, p):
     """ Inverse CDF aka quantile function of the NFW profile.
     Returns normalized q radius.
     """
-    with tf.name_scope('inv_cdf'):
+    with tf.name_scope('quantile'):
       concentration = tf.convert_to_tensor(self.concentration)
       #TODO: add checks that 0<= p <=1
-      p *= self._prob_unormalized(1.0)
+      p *= self._cdf_unormalized(1.0)
       q = (-(1. / lambertw(-tf.exp(-p -1 ))) - 1)
       return q / concentration
 
@@ -147,4 +158,4 @@ class NFW(distribution.Distribution):
         seed=seed)
 
     # Transform using the quantile function
-    return self._inv_cdf(uniform_samples)*Rvir
+    return self._quantile(uniform_samples)*Rvir
