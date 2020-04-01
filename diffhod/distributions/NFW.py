@@ -25,7 +25,7 @@ class NFW(distribution.Distribution):
   This distribution is useful to sample satelite galaxies according to an NFW
   radial profile.
 
-  TODO: add math
+  Implementation found in this class follows: https://arxiv.org/abs/1805.09550
   """
 
   def __init__(self,
