@@ -1,0 +1,42 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "EiffL",
+      "name": "Francois Lanusse",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/861591?v=4",
+      "profile": "http://flanusse.net",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "changhoonhahn",
+      "name": "ChangHoon Hahn",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/1895640?v=4",
+      "profile": "http://changhoonhahn.github.io",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "aphearin",
+      "name": "Andrew Hearin",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/6951595?v=4",
+      "profile": "https://github.com/aphearin",
+      "contributions": [
+        "ideas"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "DHOD",
+  "projectOwner": "DifferentiableUniverseInitiative",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
