@@ -9,7 +9,7 @@ def Zheng07Cens(halo_mvir,
                 logMmin=ed.Deterministic(11.35, name='logMmin'),
                 sigma_logM=ed.Deterministic(0.25, name='sigma_logM'),
                 temperature=0.2,
-                name='zheng07Cens'):
+                name='zheng07Cens', **kwargs):
   halo_mvir = tf.math.log(halo_mvir) / tf.math.log(10.)
   # Compute the mean number of centrals
   p = tf.clip_by_value(0.5 * (1+tf.math.erf((halo_mvir - logMmin)/sigma_logM)), 1.e-4, 1-1.e-4)
@@ -20,10 +20,11 @@ def Zheng07SatsPoisson(halo_mvir,
                 logM0=ed.Deterministic(11.2, name='logM0'),
                 logM1=ed.Deterministic(12.4, name='logM1'),
                 alpha=ed.Deterministic(0.83, name='alpha'),
-                name='zheng07Sats'):
-  halo_mvir = tf.math.log(halo_mvir) / tf.math.log(10.)
-  rate = n_cen.distribution.probs * ((halo_mvir - logM0)/logM1)**alpha
-  rate = tf.clip_by_value(rate, 1e-4, 1e4)
+                name='zheng07Sats', **kwargs):
+  M0 = 10.**logM0
+  M1 = 10.**logM1
+  rate = n_cen.distribution.probs * ((halo_mvir - M0)/M1)**alpha
+  rate = tf.where(halo_mvir < M0, 1e-4, rate)
   return ed.Poisson(rate=rate, name=name)
 
 def Zheng07SatsRelaxedBernoulli(halo_mvir,
@@ -33,10 +34,11 @@ def Zheng07SatsRelaxedBernoulli(halo_mvir,
                 logM1=ed.Deterministic(12.4, name='logM1'),
                 alpha=ed.Deterministic(0.83, name='alpha'),
                 temperature=0.2,
-                name='zheng07Sats'):
-  halo_mvir = tf.math.log(halo_mvir) / tf.math.log(10.)
-  rate = n_cen.distribution.probs * ((halo_mvir - logM0)/logM1)**alpha
-  rate = tf.clip_by_value(rate, 1e-4, 1e4)
+                name='zheng07Sats', **kwargs):
+  M0 = 10.**logM0
+  M1 = 10.**logM1
+  rate = n_cen.distribution.probs * ((halo_mvir - M0)/M1)**alpha
+  rate = tf.where(halo_mvir < M0, 1e-4, rate)
   return ed.RelaxedBernoulli(temperature=temperature,
                              probs=rate/sample_shape[0],
                              sample_shape=sample_shape)
@@ -44,7 +46,7 @@ def Zheng07SatsRelaxedBernoulli(halo_mvir,
 def NFWProfile(pos,
                concentration,
                Rvir,
-               sample_shape):
+               sample_shape, **kwargs):
 
   pos = ed.as_random_variable(tfd.TransformedDistribution(distribution=tfd.VonMisesFisher(tf.one_hot(tf.zeros_like(concentration, dtype=tf.int32),3), 0),
                                    bijector=tfb.AffineScalar(shift=pos, scale=tf.expand_dims(ed.as_random_variable(NFW(concentration, Rvir, name='radius'), sample_shape=sample_shape), axis=-1)),
