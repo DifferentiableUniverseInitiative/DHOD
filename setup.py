@@ -8,6 +8,5 @@ setup(name = 'diffhod',
       python_requires='>3.5.2',
       description = 'differentiable HOD',
       packages=find_packages(),
-      install_requires = ['tensorflow', 'tensorflow-probability==0.9'],
-      tests_require = ['halotools']
-        )
+      install_requires = ['tensorflow', 'tensorflow-probability==0.9', 'flowpm'],
+      tests_require = ['halotools'])
