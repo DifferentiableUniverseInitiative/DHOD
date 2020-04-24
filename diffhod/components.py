@@ -37,10 +37,9 @@ def Zheng07SatsRelaxedBernoulli(halo_mvir,
                 name='zheng07Sats', **kwargs):
   M0 = 10.**logM0
   M1 = 10.**logM1
-  rate = n_cen.distribution.probs * ((halo_mvir - M0)/M1)**alpha
-  rate = tf.where(halo_mvir < M0, 1e-4, rate)
+  rate = n_cen.distribution.probs * (tf.nn.relu(halo_mvir - M0)/M1)**alpha
   return ed.RelaxedBernoulli(temperature=temperature,
-                             probs=rate/sample_shape[0],
+                             probs=tf.clip_by_value(rate/sample_shape[0],1.e-5,1-1e-4),
                              sample_shape=sample_shape)
 
 def NFWProfile(pos,
