@@ -14,7 +14,9 @@ def _initialize_pk(shape,boxsize,kmin,dk):
     W[...] = 2.0
     W[..., 0] = 1.0
     W[..., -1] = 1.0
-    kedges = np.arange(kmin, np.pi * 10 / 1 + dk/2, dk)
+
+    kmax = np.pi * np.min(shape.as_list())/np.max(boxsize) + dk/2
+    kedges = np.arange(kmin, kmax, dk)
 
     k = [np.fft.fftfreq(N, 1. / (N * 2 * np.pi / L))[:pkshape].reshape(kshape) for N, L, kshape, pkshape in zip(shape, boxsize, I, shape)]
     kmag = sum(ki ** 2 for ki in k) ** 0.5
@@ -50,8 +52,8 @@ def pk(field,kmin=5,dk=0.5,shape = False,boxsize= False):
         
     """
     
-    
-    #initialze values related to powerspectra
+
+    #initialze values related to powerspectra (mode bins and weights)
     dig, Nsum, xsum, W, k, kedges = _initialize_pk(shape,boxsize,kmin,dk)
     
     
