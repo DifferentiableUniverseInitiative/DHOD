@@ -1,6 +1,5 @@
 # Differentiable HOD
-[![Join the chat at https://gitter.im/DifferentiableUniverseInitiative/DHOD](https://badges.gitter.im/DifferentiableUniverseInitiative/DHOD.svg)](https://gitter.im/DifferentiableUniverseInitiative/DHOD?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) ![Python Package](https://github.com/DifferentiableUniverseInitiative/DHOD/workflows/Python%20package/badge.svg)
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![Join the chat at https://gitter.im/DifferentiableUniverseInitiative/DHOD](https://badges.gitter.im/DifferentiableUniverseInitiative/DHOD.svg)](https://gitter.im/DifferentiableUniverseInitiative/DHOD?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) ![Python Package](https://github.com/DifferentiableUniverseInitiative/DHOD/workflows/Python%20package/badge.svg)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->  
 
