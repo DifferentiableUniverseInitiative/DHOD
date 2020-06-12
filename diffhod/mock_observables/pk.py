@@ -59,7 +59,7 @@ def pk(field,kmin=5,dk=0.5,shape = False,boxsize= False):
 
     #initialze values related to powerspectra (mode bins and weights)
     dig, Nsum, xsum, W, k, kedges = _initialize_pk(shape,boxsize,kmin,dk)
-    
+
     #convert field to complex for fft
     field_complex = tf.dtypes.cast(field,dtype=tf.complex64)
 
@@ -74,8 +74,8 @@ def pk(field,kmin=5,dk=0.5,shape = False,boxsize= False):
     real = tf.reshape(tf.math.real(pk),[-1,])
     imag = tf.reshape(tf.math.imag(pk),[-1,])
 
-    Psum  += tf.dtypes.cast(tf.math.bincount(dig, weights=(tf.reshape(W,[-1])  * imag), minlength=xsum.size),dtype=tf.complex64)*1j
-    Psum  += tf.dtypes.cast(tf.math.bincount(dig, weights=(tf.reshape(W,[-1]) * real), minlength=xsum.size),dtype=tf.complex64)
+    Psum  += tf.dtypes.cast(tf.math.bincount(dig, weights=(tf.reshape(W,[-1])  * imag), minlength=tf.size(xsum)),dtype=tf.complex64)*1j
+    Psum  += tf.dtypes.cast(tf.math.bincount(dig, weights=(tf.reshape(W,[-1]) * real), minlength=tf.size(xsum)),dtype=tf.complex64)
 
     power = (Psum / Nsum)[1:-1] * boxsize.prod()
 
