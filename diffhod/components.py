@@ -4,6 +4,7 @@ import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfb = tfp.bijectors
 from diffhod.distributions import NFW
+
 def Zheng07Cens(halo_mvir,
                 logMmin=ed.Deterministic(11.35, name='logMmin'),
                 sigma_logM=ed.Deterministic(0.25, name='sigma_logM'),
@@ -22,7 +23,7 @@ def Zheng07SatsPoisson(halo_mvir,
                 name='zheng07Sats', **kwargs):
   M0 = tf.pow(10.,logM0)
   M1 = tf.pow(10.,logM1)
-  rate = n_cen.distribution.probs * ((halo_mvir - tf.reshape(M0,(-1,1)))/tf.reshape(M1,(-1,1)))**tf.reshape(alpha,(-1,1))
+  rate = n_cen.distribution.probs * tf.math.pow((halo_mvir - tf.reshape(M0,(-1,1)))/(tf.reshape(M1,(-1,1))),tf.reshape(alpha,(-1,1)))
   rate = tf.where(halo_mvir < tf.reshape(M0,(-1,1)), 1e-4, rate)
   return ed.Poisson(rate=rate, name=name)
 
@@ -37,12 +38,13 @@ def Zheng07SatsRelaxedBernoulli(halo_mvir,
     M0 = tf.pow(10.,logM0)
     M1 = tf.pow(10.,logM1)
     print(M0)
-    rate = n_cen.distribution.probs * (tf.nn.relu(halo_mvir - tf.reshape(M0,(-1,1)))/tf.reshape(M1,(-1,1)))**tf.reshape(alpha,(-1,1))
-
+    
+    num = halo_mvir - tf.reshape(M0,(-1,1))
+    
+    rate = n_cen.distribution.probs * (tf.nn.relu(num)/tf.reshape(M1,(-1,1)))**tf.reshape(alpha,(-1,1))
     return ed.RelaxedBernoulli(temperature=temperature,
                              probs=tf.clip_by_value(rate/sample_shape[0],1.e-5,1-1e-4),
                              sample_shape=sample_shape)
-
 
 
 def NFWProfile(pos,
