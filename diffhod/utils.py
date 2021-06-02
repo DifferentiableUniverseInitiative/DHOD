@@ -1,6 +1,4 @@
 import tensorflow as tf
-from tensorflow_probability import edward2 as ed
-import tensorflow_probability as tfp
 from .diffhod import *
 
 

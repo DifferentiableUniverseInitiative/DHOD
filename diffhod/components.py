@@ -1,6 +1,6 @@
 
 import tensorflow as tf
-from tensorflow_probability import edward2 as ed
+import edward2 as ed
 import tensorflow_probability as tfp
 tfd = tfp.distributions
 tfb = tfp.bijectors
