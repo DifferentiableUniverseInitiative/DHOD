@@ -1,6 +1,4 @@
 import tensorflow as tf
-from .diffhod import *
-
 
 #TF2 compatable painter
 @tf.function#(experimental_relax_shapes=True)
@@ -40,8 +38,6 @@ def cic_paint(mesh, part, weight=None, name="CiCPaint"):
 
     neighboor_coords = floor + connection
     kernel = 1. - tf.abs(part - neighboor_coords)
-    # Replacing the reduce_prod op by manual multiplication
-    # TODO: figure out why reduce_prod was crashing the Hessian computation
     kernel = kernel[..., 0] * kernel[..., 1] * kernel[..., 2]
 
     if weight is not None: kernel = tf.multiply(tf.expand_dims(weight, axis=-1) , kernel)
@@ -58,32 +54,3 @@ def cic_paint(mesh, part, weight=None, name="CiCPaint"):
     update = tf.scatter_nd(tf.reshape(neighboor_coords, (-1, 8,4)),tf.reshape(kernel, (-1, 8)),[batch_size, nx, ny, nz])
     mesh = mesh + update
     return mesh
-
-
-@tf.function
-def paint_galaxies(gal_cat, nc=128):
-    # Take centrals and rescale them to the boxsize
-    
-    bs = gal_cat['n_sat'].shape[1]
-    
-    sample1 = gal_cat['pos_cen'] / 128. * nc
-    weights1 = gal_cat['n_cen']
-    # Take sats and rescale them to the boxize
-  
-    sample2 = tf.reshape(gal_cat['pos_sat'], [-1,3]) / 128. * nc
-    weights2 = tf.reshape(tf.transpose(gal_cat['n_sat'],[1,0,2]),[bs,-1])
-    
-    sample1_r = tf.tile(tf.expand_dims(sample1,0),[bs,1,1])
-    print(sample1_r.shape,weights1.shape)
-    rho1 = cic_paint(tf.zeros((bs, nc, nc, nc)),sample1_r, weights1)
-    sample2_r = tf.tile(tf.expand_dims(sample2,0),[bs,1,1])
-    print(sample2_r.shape,weights2.shape)
-
-    rho2 = cic_paint(tf.zeros((bs, nc, nc, nc)),sample2_r, weights2)
-    rho = rho1+rho2
-    return rho
-
-# sampling galaxies from the model, with given params
-@tf.function
-def sample(halo_cat, logMmin, sigma_logM, logM0, logM1, alpha,temp=0.02):
-    return paint_galaxies(hod(halo_cat,logMmin, sigma_logM, logM0, logM1, alpha,temp=temp))
