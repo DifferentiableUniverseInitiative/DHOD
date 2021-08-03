@@ -4,7 +4,6 @@ from setuptools import setup, find_packages
 setup(name='diffhod',
       description="Differentiable Halo Occupation Distribution",
       python_requires='>3.6',
-      description='differentiable HOD',
       author="DiffHOD developers",
       packages=find_packages(),
       install_requires=['tensorflow-probability', 'edward2'],
