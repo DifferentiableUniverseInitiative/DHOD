@@ -49,6 +49,16 @@
       "contributions": [
         "content"
       ]
+    },
+    {
+      "login": "sferraroastro",
+      "name": "Simone Ferraro",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19699330?v=4",
+      "profile": "https://astro.berkeley.edu/people/simone-ferraro/",
+      "contributions": [
+        "ideas",
+        "content"
+      ]
     }
   ],
   "contributorsPerLine": 7,
