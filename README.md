@@ -18,7 +18,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="http://changhoonhahn.github.io"><img src="https://avatars0.githubusercontent.com/u/1895640?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ChangHoon Hahn</b></sub></a><br /><a href="https://github.com/DifferentiableUniverseInitiative/DHOD/commits?author=changhoonhahn" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/aphearin"><img src="https://avatars0.githubusercontent.com/u/6951595?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andrew Hearin</b></sub></a><br /><a href="#ideas-aphearin" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://bhorowitz.github.io/"><img src="https://avatars2.githubusercontent.com/u/6059772?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ben Horowitz</b></sub></a><br /><a href="https://github.com/DifferentiableUniverseInitiative/DHOD/commits?author=bhorowitz" title="Code">💻</a></td>
-    <td align="center"><a href="https://modichirag.github.io/"><img src="https://avatars.githubusercontent.com/u/13356766?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Chirag Modi</b></sub></a><br /><a href="#content-modichirag" title="Content">🖋</a></td>
+    <td align="center"><a href="https://modichirag.github.io/"><img src="https://avatars.githubusercontent.com/u/13356766?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Chirag Modi</b></sub></a><br /><a href="#content-modichirag" title="Content">🖋</a> <a href="https://github.com/DifferentiableUniverseInitiative/DHOD/commits?author=modichirag" title="Code">💻</a> <a href="#ideas-modichirag" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 
