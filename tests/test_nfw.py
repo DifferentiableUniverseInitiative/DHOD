@@ -4,6 +4,7 @@ from numpy.testing import assert_allclose
 from diffhod.distributions import NFW
 from halotools.empirical_models import NFWProfile
 
+
 def test_nfw_mass_cdf():
   """
   Compares CDF values to halotools
@@ -16,6 +17,7 @@ def test_nfw_mass_cdf():
     y = model.cumulative_mass_PDF(scaled_radius, conc=c)
     y_tf = distr.cdf(scaled_radius)
     assert_allclose(y, y_tf.numpy(), rtol=1e-4)
+
 
 def test_nfw_mc_positions():
   """
@@ -32,9 +34,9 @@ def test_nfw_mc_positions():
                                                      halo_radius=1)
     samples_tf = distr.sample(1e6)
 
-    h = np.histogram(samples, 32, density=True, range=[0.01,1]);
-    h_tf = np.histogram(samples_tf, 32, density=True, range=[0.01,1]);
-    x = 0.5*(h[1][:-1] + h[1][1:])
+    h = np.histogram(samples, 32, density=True, range=[0.01, 1])
+    h_tf = np.histogram(samples_tf, 32, density=True, range=[0.01, 1])
+    x = 0.5 * (h[1][:-1] + h[1][1:])
 
     p = distr.prob(x)
 

@@ -13,8 +13,9 @@ from tensorflow_probability.python.internal import tensor_util
 from tensorflow_probability.python.math import lambertw
 
 __all__ = [
-  'NFW',
+    'NFW',
 ]
+
 
 class NFW(distribution.Distribution):
   r"""NFW radial mass distribution.
@@ -24,7 +25,6 @@ class NFW(distribution.Distribution):
 
   Implementation found in this class follows: https://arxiv.org/abs/1805.09550
   """
-
   def __init__(self,
                concentration,
                Rvir,
@@ -51,11 +51,13 @@ class NFW(distribution.Distribution):
     """
     parameters = dict(locals())
     with tf.name_scope(name) as name:
-      dtype = dtype_util.common_dtype([concentration, Rvir], dtype_hint=tf.float32)
+      dtype = dtype_util.common_dtype([concentration, Rvir],
+                                      dtype_hint=tf.float32)
       self._concentration = tensor_util.convert_nonref_to_tensor(
           value=concentration, name='concentration', dtype=dtype)
-      self._Rvir = tensor_util.convert_nonref_to_tensor(
-          value=Rvir, name='Rvir', dtype=dtype)
+      self._Rvir = tensor_util.convert_nonref_to_tensor(value=Rvir,
+                                                        name='Rvir',
+                                                        dtype=dtype)
 
     super(self.__class__, self).__init__(
         dtype=self._concentration.dtype,
@@ -87,12 +89,12 @@ class NFW(distribution.Distribution):
 
   def _batch_shape_tensor(self, concentration=None, Rvir=None):
     return prefer_static.broadcast_shape(
-        prefer_static.shape(self.concentration if concentration is None else concentration),
+        prefer_static.shape(
+            self.concentration if concentration is None else concentration),
         prefer_static.shape(self.Rvir if Rvir is None else Rvir))
 
   def _batch_shape(self):
-    return tf.broadcast_static_shape(
-        self.concentration.shape, self.Rvir.shape)
+    return tf.broadcast_static_shape(self.concentration.shape, self.Rvir.shape)
 
   def _event_shape_tensor(self):
     return tf.constant([], dtype=tf.int32)
@@ -109,8 +111,9 @@ class NFW(distribution.Distribution):
   def _prob(self, r):
     concentration = tf.convert_to_tensor(self.concentration)
     q = self._q(r)
-    p = (q*concentration**2)/(((q*concentration)+1.0)**2*(1.0/(concentration+1.0) +
-                              tf.math.log(concentration+1.0)-1.0))
+    p = (q * concentration**2) / (
+        ((q * concentration) + 1.0)**2 *
+        (1.0 / (concentration + 1.0) + tf.math.log(concentration + 1.0) - 1.0))
     return p
 
   def _cdf_unormalized(self, q):
@@ -127,7 +130,8 @@ class NFW(distribution.Distribution):
 
   def _log_cdf(self, r):
     q = self._q(r)
-    return tf.math.log(self._cdf_unormalized(q)) - tf.math.log(self._cdf_unormalized(1.0))
+    return tf.math.log(self._cdf_unormalized(q)) - tf.math.log(
+        self._cdf_unormalized(1.0))
 
   def _quantile(self, p):
     """ Inverse CDF aka quantile function of the NFW profile.
@@ -137,22 +141,22 @@ class NFW(distribution.Distribution):
       concentration = tf.convert_to_tensor(self.concentration)
       #TODO: add checks that 0<= p <=1
       p *= self._cdf_unormalized(1.0)
-      q = (-(1. / lambertw(-tf.exp(-p -1 ))) - 1)
+      q = (-(1. / lambertw(-tf.exp(-p - 1))) - 1)
       return q / concentration
 
   def _sample_n(self, n, seed=None):
     Rvir = tf.convert_to_tensor(self.Rvir)
     concentration = tf.convert_to_tensor(self.concentration)
-    shape = tf.concat([[n], self._batch_shape_tensor(concentration=concentration,
-                                                     Rvir=Rvir)], 0)
+    shape = tf.concat(
+        [[n],
+         self._batch_shape_tensor(concentration=concentration, Rvir=Rvir)], 0)
     # Sample from uniform distribution
     dt = dtype_util.as_numpy_dtype(self.dtype)
-    uniform_samples = tf.random.uniform(
-        shape=shape,
-        minval=np.nextafter(dt(0.), dt(1.)),
-        maxval=1.,
-        dtype=self.dtype,
-        seed=seed)
+    uniform_samples = tf.random.uniform(shape=shape,
+                                        minval=np.nextafter(dt(0.), dt(1.)),
+                                        maxval=1.,
+                                        dtype=self.dtype,
+                                        seed=seed)
 
     # Transform using the quantile function
-    return self._quantile(uniform_samples)*Rvir
+    return self._quantile(uniform_samples) * Rvir

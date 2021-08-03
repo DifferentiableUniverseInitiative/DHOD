@@ -1,7 +1,8 @@
 import tensorflow as tf
 
+
 #TF2 compatable painter
-@tf.function#(experimental_relax_shapes=True)
+@tf.function  #(experimental_relax_shapes=True)
 def cic_paint(mesh, part, weight=None, name="CiCPaint"):
   """
   Paints particules on a 3D mesh.
@@ -32,25 +33,29 @@ def cic_paint(mesh, part, weight=None, name="CiCPaint"):
     # Extract the indices of all the mesh points affected by each particles
     part = tf.expand_dims(part, 2)
     floor = tf.floor(part)
-    connection = tf.expand_dims(tf.constant([[[0, 0, 0], [1., 0, 0],[0., 1, 0],
-                                              [0., 0, 1],[1., 1, 0],[1., 0, 1],
-                                              [0., 1, 1],[1., 1, 1]]]), 0)
+    connection = tf.expand_dims(
+        tf.constant([[[0, 0, 0], [1., 0, 0], [0., 1, 0], [0., 0, 1],
+                      [1., 1, 0], [1., 0, 1], [0., 1, 1], [1., 1, 1]]]), 0)
 
     neighboor_coords = floor + connection
     kernel = 1. - tf.abs(part - neighboor_coords)
     kernel = kernel[..., 0] * kernel[..., 1] * kernel[..., 2]
 
-    if weight is not None: kernel = tf.multiply(tf.expand_dims(weight, axis=-1) , kernel)
+    if weight is not None:
+      kernel = tf.multiply(tf.expand_dims(weight, axis=-1), kernel)
 
     neighboor_coords = tf.cast(neighboor_coords, tf.int32)
-    neighboor_coords = tf.math.mod(neighboor_coords , nc)
+    neighboor_coords = tf.math.mod(neighboor_coords, nc)
 
     # Adding batch dimension to the neighboor coordinates
     batch_idx = tf.range(0, batch_size)
     batch_idx = tf.reshape(batch_idx, (batch_size, 1, 1, 1))
-    b = tf.tile(batch_idx, [1] + list(neighboor_coords.get_shape()[1:-1]) + [1])
+    b = tf.tile(batch_idx,
+                [1] + list(neighboor_coords.get_shape()[1:-1]) + [1])
     neighboor_coords = tf.concat([b, neighboor_coords], axis=-1)
 
-    update = tf.scatter_nd(tf.reshape(neighboor_coords, (-1, 8,4)),tf.reshape(kernel, (-1, 8)),[batch_size, nx, ny, nz])
+    update = tf.scatter_nd(tf.reshape(neighboor_coords, (-1, 8, 4)),
+                           tf.reshape(kernel, (-1, 8)),
+                           [batch_size, nx, ny, nz])
     mesh = mesh + update
     return mesh
