@@ -94,14 +94,15 @@ def Zheng07SatsRelaxedBernoulli(Mhalo,
 def NFWProfile(pos, concentration, Rvir, sample_shape, **kwargs):
   '''
     '''
-  pos = ed.as_random_variable(tfd.TransformedDistribution(
+  pos = ed.RandomVariable(tfd.TransformedDistribution(
       distribution=tfd.VonMisesFisher(
           tf.one_hot(tf.zeros_like(concentration, dtype=tf.int32), 3), 0),
-      bijector=tfb.AffineScalar(shift=pos,
-                                scale=tf.expand_dims(ed.as_random_variable(
-                                    NFW(concentration, Rvir, name='radius'),
-                                    sample_shape=sample_shape),
-                                                     axis=-1)),
+      bijector=tfb.Shift(pos)(tfb.Scale(
+          tf.expand_dims(ed.RandomVariable(NFW(concentration,
+                                               Rvir,
+                                               name='radius'),
+                                           sample_shape=sample_shape),
+                         axis=-1))),
       name='position'),
-                              sample_shape=sample_shape)
+                          sample_shape=sample_shape)
   return pos
