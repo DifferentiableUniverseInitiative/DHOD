@@ -36,8 +36,8 @@ def Zheng07Cens(Mhalo,
     Mhalo = tf.math.log(Mhalo) / tf.math.log(10.) # log10(Mhalo) 
 
     # Compute the mean number of centrals
-    p = tf.clip_by_value(0.5 * (1+tf.math.erf((Mhalo - logMmin)/sigma_logM)), 
-            1.e-4, 1-1.e-4) 
+    p = tf.clip_by_value(0.5 * (1+tf.math.erf((Mhalo - tf.reshape(logMmin,(-1,1)))/tf.reshape(sigma_logM,(-1,1)))), 1.e-4, 1-1.e-4)
+
     return ed.RelaxedBernoulli(temperature, probs=p, name='zheng07Cens') 
 
 
