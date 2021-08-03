@@ -1,9 +1,10 @@
 import tensorflow as tf
 import edward2 as ed
 import tensorflow_probability as tfp
+from diffhod.distributions import NFW
+
 tfd = tfp.distributions
 tfb = tfp.bijectors
-from diffhod.distributions import NFW
 
 
 def Zheng07Cens(Mhalo,
