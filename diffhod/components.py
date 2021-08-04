@@ -42,8 +42,9 @@ def Zheng07Cens(Mhalo,
     Mhalo = tf.math.log(Mhalo) / np.log(10.)  # log10(Mhalo)
 
     # Compute the mean number of centrals
-    p = tf.clip_by_value(0.5 * (1 + tf.math.erf((Mhalo - logMmin) / sigma_logM)),
-                        1.e-4, 1 - 1.e-4)
+    p = tf.clip_by_value(
+        0.5 * (1 + tf.math.erf((Mhalo - logMmin) / sigma_logM)), 1.e-4,
+        1 - 1.e-4)
 
     return ed.RelaxedBernoulli(temperature, probs=p, name=name)
 
@@ -78,7 +79,8 @@ def Zheng07SatsPoisson(Mhalo,
       alpha = tf.expand_dims(alpha, -1)
 
     M0 = tf.pow(10., logM0)
-    rate = Ncen.distribution.probs * _Zheng07SatsRate(Mhalo, logM0, logM1, alpha)
+    rate = Ncen.distribution.probs * _Zheng07SatsRate(Mhalo, logM0, logM1,
+                                                      alpha)
     rate = tf.where(Mhalo < M0, 1e-4, rate)
     return ed.Poisson(rate=rate, name=name)
 
@@ -119,15 +121,18 @@ def Zheng07SatsRelaxedBernoulli(Mhalo,
       logM1 = tf.expand_dims(logM1, -1)
       alpha = tf.expand_dims(alpha, -1)
 
-    rate = Ncen.distribution.probs * _Zheng07SatsRate(Mhalo, logM0, logM1, alpha)
+    rate = Ncen.distribution.probs * _Zheng07SatsRate(Mhalo, logM0, logM1,
+                                                      alpha)
     return ed.RelaxedBernoulli(temperature=temperature,
-                              probs=tf.clip_by_value(rate / sample_shape[0],
+                               probs=tf.clip_by_value(rate / sample_shape[0],
                                                       1.e-5, 1 - 1e-4),
-                              sample_shape=sample_shape,
-                              name=name)
+                               sample_shape=sample_shape,
+                               name=name)
 
-# By default, we will refer to the Bernoulli model as Zheng07Sats                        
+
+# By default, we will refer to the Bernoulli model as Zheng07Sats
 Zheng07Sats = Zheng07SatsRelaxedBernoulli
+
 
 def NFWProfile(pos,
                concentration,
@@ -156,9 +161,9 @@ def NFWProfile(pos,
             tf.one_hot(tf.zeros_like(concentration, dtype=tf.int32), 3), 0),
         bijector=tfb.Shift(pos)(tfb.Scale(
             tf.expand_dims(ed.RandomVariable(NFW(concentration,
-                                                Rvir,
-                                                name='radius'),
-                                            sample_shape=sample_shape),
-                          axis=-1))),
+                                                 Rvir,
+                                                 name='radius'),
+                                             sample_shape=sample_shape),
+                           axis=-1))),
         name=name),
-                            sample_shape=sample_shape)
+                             sample_shape=sample_shape)
