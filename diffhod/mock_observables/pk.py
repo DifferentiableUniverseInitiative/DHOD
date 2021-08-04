@@ -5,6 +5,7 @@ import tensorflow as tf
 
 
 class Power_Spectrum():
+
   def __init__(self, shape, boxsize, kmin, dk):
     self.shape = shape
     self.boxsize = boxsize
@@ -78,8 +79,8 @@ class Power_Spectrum():
 
     #fast fourier transform
     fft_image = tf.map_fn(
-        tf.signal.fft3d, field_complex
-    )  #, dtype=None, parallel_iterations=None, back_prop=True,
+        tf.signal.fft3d,
+        field_complex)  #, dtype=None, parallel_iterations=None, back_prop=True,
     #swap_memory=False, infer_shape=True, name=None
     #)
 
@@ -99,31 +100,36 @@ class Power_Spectrum():
     #def bincount func
     @tf.function
     def bincount(x):
-      return tf.math.bincount(self.dig,
-                              weights=(tf.reshape(self.W, [-1]) * x),
-                              minlength=tf.size(self.xsum))
+      return tf.math.bincount(
+          self.dig,
+          weights=(tf.reshape(self.W, [-1]) * x),
+          minlength=tf.size(self.xsum))
 
     #Psum1 = tf.dtypes.cast(tf.vectorized_map(bincount, imag),dtype=tf.complex64)*1j
     #Psum2 = tf.dtypes.cast(tf.vectorized_map(bincount, real),dtype=tf.complex64)
-    Psum1 = tf.dtypes.cast(tf.map_fn(bincount,
-                                     imag,
-                                     dtype=None,
-                                     parallel_iterations=None,
-                                     back_prop=True,
-                                     swap_memory=False,
-                                     infer_shape=True,
-                                     name=None),
-                           dtype=tf.complex64) * 1j
+    Psum1 = tf.dtypes.cast(
+        tf.map_fn(
+            bincount,
+            imag,
+            dtype=None,
+            parallel_iterations=None,
+            back_prop=True,
+            swap_memory=False,
+            infer_shape=True,
+            name=None),
+        dtype=tf.complex64) * 1j
 
-    Psum2 = tf.dtypes.cast(tf.map_fn(bincount,
-                                     real,
-                                     dtype=None,
-                                     parallel_iterations=None,
-                                     back_prop=True,
-                                     swap_memory=False,
-                                     infer_shape=True,
-                                     name=None),
-                           dtype=tf.complex64)
+    Psum2 = tf.dtypes.cast(
+        tf.map_fn(
+            bincount,
+            real,
+            dtype=None,
+            parallel_iterations=None,
+            back_prop=True,
+            swap_memory=False,
+            infer_shape=True,
+            name=None),
+        dtype=tf.complex64)
 
     power = ((Psum + Psum1 + Psum2) / self.Nsum)[:, 1:-1] * tf.cast(
         self.boxsize[0]**3, dtype=tf.complex64)

@@ -14,8 +14,7 @@ def test_zheng07_mean_occupation_centrals():
 
   test_mass = np.logspace(10, 15).astype('float32')
   p = zheng07_model.mean_occupation_centrals(prim_haloprop=test_mass)
-  p_tf = Zheng07Cens(test_mass,
-                     **(zheng07_model.param_dict)).distribution.probs
+  p_tf = Zheng07Cens(test_mass, **(zheng07_model.param_dict)).distribution.probs
   assert_allclose(p, p_tf.numpy(), atol=1.e-3)
 
 

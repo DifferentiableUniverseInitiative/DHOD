@@ -10,6 +10,7 @@ tfb = tfp.bijectors
 class CustomSigmoid(tfb.Sigmoid):
   """ Custom bijector to bypass issue in TFP sigmoid gradients
   """
+
   def _forward(self, x):
     if self._is_standard_sigmoid:
       return tf.sigmoid(x)
@@ -19,10 +20,12 @@ class CustomSigmoid(tfb.Sigmoid):
 class RelaxedBernoulli(tfd.RelaxedBernoulli):
   """ Custom Relaxed Bernoulli using the above sigmoid bijector
   """
+
   def _transformed_logistic(self):
     logistic_scale = tf.math.reciprocal(self._temperature)
     logits_parameter = self._logits_parameter_no_checks()
     logistic_loc = logits_parameter * logistic_scale
-    return tfd.TransformedDistribution(distribution=tfd.Logistic(
-        logistic_loc, logistic_scale, allow_nan_stats=self.allow_nan_stats),
-                                       bijector=CustomSigmoid())
+    return tfd.TransformedDistribution(
+        distribution=tfd.Logistic(
+            logistic_loc, logistic_scale, allow_nan_stats=self.allow_nan_stats),
+        bijector=CustomSigmoid())
