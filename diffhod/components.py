@@ -1,11 +1,18 @@
+from diffhod.distributions.RelaxedBernoulli import RelaxedBernoulli
 import numpy as np
 import tensorflow as tf
 import edward2 as ed
 import tensorflow_probability as tfp
-from diffhod.distributions import NFW
 
 tfd = tfp.distributions
 tfb = tfp.bijectors
+
+# Defining Edward random variables for our custom distributions
+import diffhod.distributions as custom_distributions
+
+RelaxedBernoulli = ed.make_random_variable(
+    custom_distributions.RelaxedBernoulli)
+NFW = ed.make_random_variable(custom_distributions.NFW)
 
 
 def Zheng07Cens(Mhalo,
@@ -46,7 +53,7 @@ def Zheng07Cens(Mhalo,
         0.5 * (1 + tf.math.erf((Mhalo - logMmin) / sigma_logM)), 1.e-4,
         1 - 1.e-4)
 
-    return ed.RelaxedBernoulli(temperature, probs=p, name=name)
+    return RelaxedBernoulli(temperature, probs=p, name=name)
 
 
 def _Zheng07SatsRate(Mhalo, logM0, logM1, alpha):
@@ -123,11 +130,11 @@ def Zheng07SatsRelaxedBernoulli(Mhalo,
 
     rate = Ncen.distribution.probs * _Zheng07SatsRate(Mhalo, logM0, logM1,
                                                       alpha)
-    return ed.RelaxedBernoulli(temperature=temperature,
-                               probs=tf.clip_by_value(rate / sample_shape[0],
-                                                      1.e-5, 1 - 1e-4),
-                               sample_shape=sample_shape,
-                               name=name)
+    return RelaxedBernoulli(temperature=temperature,
+                            probs=tf.clip_by_value(rate / sample_shape[0],
+                                                   1.e-5, 1 - 1e-4),
+                            sample_shape=sample_shape,
+                            name=name)
 
 
 # By default, we will refer to the Bernoulli model as Zheng07Sats
@@ -160,10 +167,10 @@ def NFWProfile(pos,
         distribution=tfd.VonMisesFisher(
             tf.one_hot(tf.zeros_like(concentration, dtype=tf.int32), 3), 0),
         bijector=tfb.Shift(pos)(tfb.Scale(
-            tf.expand_dims(ed.RandomVariable(NFW(concentration,
-                                                 Rvir,
-                                                 name='radius'),
-                                             sample_shape=sample_shape),
+            tf.expand_dims(NFW(concentration,
+                               Rvir,
+                               name='radius',
+                               sample_shape=sample_shape),
                            axis=-1))),
         name=name),
                              sample_shape=sample_shape)
