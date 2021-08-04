@@ -16,9 +16,7 @@ fid_power = 2.4 * np.ones(5)
 
 def test_pk():
   field = tf.random.normal([1, 100, 100, 100])
-  pk_calculator = pk.Power_Spectrum(shape=[100, 100, 100],
-                                    boxsize=[128, 128, 128],
-                                    kmin=0.001,
-                                    dk=0.5)
+  pk_calculator = pk.Power_Spectrum(
+      shape=[100, 100, 100], boxsize=[128, 128, 128], kmin=0.001, dk=0.5)
   power = pk_calculator.pk_tf(field)
   assert_allclose(power[1][0], fid_power, rtol=2e-1)

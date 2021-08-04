@@ -25,6 +25,7 @@ class NFW(distribution.Distribution):
 
   Implementation found in this class follows: https://arxiv.org/abs/1805.09550
   """
+
   def __init__(self,
                concentration,
                Rvir,
@@ -55,9 +56,8 @@ class NFW(distribution.Distribution):
                                       dtype_hint=tf.float32)
       self._concentration = tensor_util.convert_nonref_to_tensor(
           value=concentration, name='concentration', dtype=dtype)
-      self._Rvir = tensor_util.convert_nonref_to_tensor(value=Rvir,
-                                                        name='Rvir',
-                                                        dtype=dtype)
+      self._Rvir = tensor_util.convert_nonref_to_tensor(
+          value=Rvir, name='Rvir', dtype=dtype)
 
     super(self.__class__, self).__init__(
         dtype=self._concentration.dtype,
@@ -152,11 +152,12 @@ class NFW(distribution.Distribution):
          self._batch_shape_tensor(concentration=concentration, Rvir=Rvir)], 0)
     # Sample from uniform distribution
     dt = dtype_util.as_numpy_dtype(self.dtype)
-    uniform_samples = tf.random.uniform(shape=shape,
-                                        minval=np.nextafter(dt(0.), dt(1.)),
-                                        maxval=1.,
-                                        dtype=self.dtype,
-                                        seed=seed)
+    uniform_samples = tf.random.uniform(
+        shape=shape,
+        minval=np.nextafter(dt(0.), dt(1.)),
+        maxval=1.,
+        dtype=self.dtype,
+        seed=seed)
 
     # Transform using the quantile function
     return self._quantile(uniform_samples) * Rvir

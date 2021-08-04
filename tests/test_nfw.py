@@ -29,9 +29,8 @@ def test_nfw_mc_positions():
   for c in [5, 10, 20]:
     distr = NFW(concentration=c, Rvir=1)
 
-    samples = model.mc_generate_nfw_radial_positions(num_pts=int(1e6),
-                                                     conc=c,
-                                                     halo_radius=1)
+    samples = model.mc_generate_nfw_radial_positions(
+        num_pts=int(1e6), conc=c, halo_radius=1)
     samples_tf = distr.sample(1e6)
 
     h = np.histogram(samples, 32, density=True, range=[0.01, 1])
