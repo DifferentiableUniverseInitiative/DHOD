@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-from diffhod.distributions import NFW
+from diffhod.distributions import RadialNFWProfile
 from halotools.empirical_models import NFWProfile
 
 
@@ -13,7 +13,7 @@ def test_nfw_mass_cdf():
   scaled_radius = np.logspace(-2, 0, 100)
 
   for c in [5, 10, 20]:
-    distr = NFW(concentration=c, Rvir=1)
+    distr = RadialNFWProfile(concentration=c, Rvir=1)
     y = model.cumulative_mass_PDF(scaled_radius, conc=c)
     y_tf = distr.cdf(scaled_radius)
     assert_allclose(y, y_tf.numpy(), rtol=1e-4)
@@ -27,7 +27,7 @@ def test_nfw_mc_positions():
   scaled_radius = np.logspace(-2, 0, 100)
 
   for c in [5, 10, 20]:
-    distr = NFW(concentration=c, Rvir=1)
+    distr = RadialNFWProfile(concentration=c, Rvir=1)
 
     samples = model.mc_generate_nfw_radial_positions(
         num_pts=int(1e6), conc=c, halo_radius=1)

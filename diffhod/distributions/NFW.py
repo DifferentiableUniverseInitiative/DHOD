@@ -11,13 +11,13 @@ from tensorflow_probability.python.internal import prefer_static
 from tensorflow_probability.python.internal import reparameterization
 from tensorflow_probability.python.internal import tensor_util
 from tensorflow_probability.python.math import lambertw
+from tensorflow_probability.python.internal import samplers
 
 __all__ = [
-    'NFW',
+    'RadialNFWProfile',
 ]
 
-
-class NFW(distribution.Distribution):
+class RadialNFWProfile(distribution.Distribution):
   r"""NFW radial mass distribution.
 
   This distribution is useful to sample satelite galaxies according to an NFW
@@ -161,3 +161,49 @@ class NFW(distribution.Distribution):
 
     # Transform using the quantile function
     return self._quantile(uniform_samples) * Rvir
+
+
+class NFWProfile(RadialNFWProfile):
+  r""" 3D NFW mass distribution.
+  
+  This distribution is useful to sample satelite galaxies according to an NFW
+  profile.
+
+  Implementation found in this class follows: https://arxiv.org/abs/1805.09550
+  """
+
+  def _event_shape_tensor(self):
+    return tf.constant([3], dtype=tf.int32)
+
+  def _event_shape(self):
+    return tf.TensorShape([3])
+
+  def _prob(self, x):
+    r = tf.norm(x, axis=-1)
+    return super()._prob(r)
+
+  def _cdf(self, x):
+    r = tf.norm(x, axis=-1)
+    return super()._cdf(r)
+    
+  def _log_cdf(self, x):
+    r = tf.norm(x, axis=-1)
+    return super()._log_cdf(r)
+    
+  def _sample_n(self, n, seed):
+    radial_seed, otherdims_seed = samplers.split_seed(seed,
+                                                     salt='NFW')
+    Rvir = tf.convert_to_tensor(self.Rvir)
+    concentration = tf.convert_to_tensor(self.concentration)
+
+    r = super()._sample_n(n, seed=radial_seed)
+    shape = tf.concat(
+        [[n],
+        self._batch_shape_tensor(concentration=concentration, Rvir=Rvir),
+        self._event_shape_tensor()], 0)
+
+    x = tf.math.l2_normalize(
+        samplers.normal(
+            shape, seed=otherdims_seed, dtype=self.dtype),
+        axis=-1)
+    return x * tf.expand_dims(r, axis=-1)
