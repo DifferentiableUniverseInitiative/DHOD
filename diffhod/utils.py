@@ -48,7 +48,7 @@ def cic_paint(mesh, part, weight=None, name="CiCPaint"):
     batch_idx = tf.range(0, batch_size)
     batch_idx = tf.reshape(batch_idx, (batch_size, 1, 1, 1))
     b = tf.tile(batch_idx, [1] + list(neighboor_coords.get_shape()[1:-1]) + [1])
-    b = tf.cast(b,tf.float32)
+    b = tf.cast(b, tf.float32)
     neighboor_coords = tf.concat([b, neighboor_coords], axis=-1)
 
     neighboor_coords = tf.cast(neighboor_coords, tf.int32)
