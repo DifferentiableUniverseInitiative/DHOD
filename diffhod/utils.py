@@ -44,15 +44,14 @@ def cic_paint(mesh, part, weight=None, name="CiCPaint"):
     if weight is not None:
       kernel = tf.multiply(tf.expand_dims(weight, axis=-1), kernel)
 
-    neighboor_coords = tf.cast(neighboor_coords, tf.int32)
-    neighboor_coords = tf.math.mod(neighboor_coords, nc)
-
     # Adding batch dimension to the neighboor coordinates
     batch_idx = tf.range(0, batch_size)
     batch_idx = tf.reshape(batch_idx, (batch_size, 1, 1, 1))
     b = tf.tile(batch_idx, [1] + list(neighboor_coords.get_shape()[1:-1]) + [1])
+    b = tf.cast(b, tf.float32)
     neighboor_coords = tf.concat([b, neighboor_coords], axis=-1)
 
+    neighboor_coords = tf.cast(neighboor_coords, tf.int32)
     update = tf.scatter_nd(
         tf.reshape(neighboor_coords, (-1, 8, 4)), tf.reshape(kernel, (-1, 8)),
         [batch_size, nx, ny, nz])
