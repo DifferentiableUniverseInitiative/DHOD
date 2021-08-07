@@ -1,15 +1,15 @@
 import numpy as np
 from numpy.testing import assert_allclose
 
-from diffhod.distributions import RadialNFWProfile
-from halotools.empirical_models import NFWProfile
+from diffhod.distributions import RadialNFWProfile, NFWProfile
+from halotools.empirical_models import NFWProfile as NFWProfile_ref
 
 
 def test_nfw_mass_cdf():
   """
   Compares CDF values to halotools
   """
-  model = NFWProfile()
+  model = NFWProfile_ref()
   scaled_radius = np.logspace(-2, 0, 100)
 
   for c in [5, 10, 20]:
@@ -23,8 +23,7 @@ def test_nfw_mc_positions():
   """
   Compares samples with halotools and analytic density
   """
-  model = NFWProfile()
-  scaled_radius = np.logspace(-2, 0, 100)
+  model = NFWProfile_ref()
 
   for c in [5, 10, 20]:
     distr = RadialNFWProfile(concentration=c, Rvir=1)
@@ -43,3 +42,17 @@ def test_nfw_mc_positions():
     assert_allclose(h[0], h_tf[0], rtol=5e-2)
     # Comparing to prob
     assert_allclose(h_tf[0], p, rtol=5e-2)
+
+
+def test_nfw_density():
+  """
+  Compares samples with halotools and analytic density
+  """
+  model = NFWProfile_ref()
+  scaled_radius = np.logspace(-2, 0, 100)
+  x = np.array([0,0,1]).reshape([1,3]) * scaled_radius.reshape([-1,1])
+  for c in [5, 10, 20]:
+    distr = NFWProfile(concentration=c, Rvir=1)
+    y = model.dimensionless_mass_density(scaled_radius, conc=c)
+    y_tf = distr.prob(x).numpy()
+    assert_allclose(y/y[0], y_tf/y_tf[0], rtol=1e-4)

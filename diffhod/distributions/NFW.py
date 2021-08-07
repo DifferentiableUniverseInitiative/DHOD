@@ -15,6 +15,7 @@ from tensorflow_probability.python.internal import samplers
 
 __all__ = [
     'RadialNFWProfile',
+    'NFWProfile'
 ]
 
 class RadialNFWProfile(distribution.Distribution):
