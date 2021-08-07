@@ -59,7 +59,7 @@ class RadialNFWProfile(distribution.Distribution):
       self._Rvir = tensor_util.convert_nonref_to_tensor(
           value=Rvir, name='Rvir', dtype=dtype)
 
-    super(self.__class__, self).__init__(
+    super(RadialNFWProfile, self).__init__(
         dtype=self._concentration.dtype,
         reparameterization_type=reparameterization.FULLY_REPARAMETERIZED,
         validate_args=validate_args,
@@ -152,7 +152,7 @@ class RadialNFWProfile(distribution.Distribution):
          self._batch_shape_tensor(concentration=concentration, Rvir=Rvir)], 0)
     # Sample from uniform distribution
     dt = dtype_util.as_numpy_dtype(self.dtype)
-    uniform_samples = tf.random.uniform(
+    uniform_samples = samplers.uniform(
         shape=shape,
         minval=np.nextafter(dt(0.), dt(1.)),
         maxval=1.,
@@ -179,16 +179,18 @@ class NFWProfile(RadialNFWProfile):
     return tf.TensorShape([3])
 
   def _prob(self, x):
+    concentration = tf.convert_to_tensor(self.concentration)
     r = tf.norm(x, axis=-1)
-    return super()._prob(r)
+    q = self._q(r)
+    qc = q * concentration
+    # TODO: properly normalize the density
+    return 1. / (qc * (1 + qc)**2)
 
   def _cdf(self, x):
-    r = tf.norm(x, axis=-1)
-    return super()._cdf(r)
+    raise NotImplementedError
     
   def _log_cdf(self, x):
-    r = tf.norm(x, axis=-1)
-    return super()._log_cdf(r)
+    raise NotImplementedError
     
   def _sample_n(self, n, seed):
     radial_seed, otherdims_seed = samplers.split_seed(seed,

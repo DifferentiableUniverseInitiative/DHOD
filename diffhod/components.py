@@ -12,7 +12,7 @@ import diffhod.distributions as custom_distributions
 
 RelaxedBernoulli = ed.make_random_variable(
     custom_distributions.RelaxedBernoulli)
-NFW = ed.make_random_variable(custom_distributions.NFW)
+NFW = ed.make_random_variable(custom_distributions.RadialNFWProfile)
 
 
 def Zheng07Cens(Mhalo,
