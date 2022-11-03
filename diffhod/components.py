@@ -59,9 +59,9 @@ def Zheng07Cens(Mhalo,
 def _Zheng07SatsRate(Mhalo, logM0, logM1, alpha):
   M0 = tf.pow(10., logM0)
   M1 = tf.pow(10., logM1)
-    #this is a hack due to unstable derivative behavior in TF2.6.0 in exponentiating a relu
-  ad = (alpha+(1-tf.sign(Mhalo - M0 )))
-  return (tf.nn.relu((Mhalo - M0 ))/ M1)**ad
+  #this is a hack due to unstable derivative behavior in TF2.6.0 in exponentiating a relu
+  ad = (alpha + (1 - tf.sign(Mhalo - M0)))
+  return (tf.nn.relu((Mhalo - M0)) / M1)**ad
   #return tf.math.pow(tf.nn.relu(Mhalo - M0) / M1, alpha)
 
 
